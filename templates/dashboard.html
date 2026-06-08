@@ -4,19 +4,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groq Chatbot</title>
     <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="stylesheet" href="/static/css/navbar.css">
 </head>
 
 <body>
 
-<nav class="navbar">
-  <div class="logo">Groq Chatbot</div>
-
-  <div class="nav-links">
-    <a href="/dashboard">Dashboard</a>
-    <a href="/profile">Profile</a>
-    <a href="/logout">Logout</a>
-  </div>
-</nav>
+{% include "navbar.html" %}
 
 
 <div class="main">
@@ -37,7 +30,11 @@ async function sendMessage() {
 
     const msg = input.value;
 
-    chatBox.innerHTML += `<div class="user">You: ${msg}</div>`;
+    chatBox.innerHTML += `<div class="chat user">
+        <div class="bubble">
+        You: ${msg}
+        </div>
+        </div>`;
     input.value = "";
 
     const res = await fetch("/chat", {
@@ -48,7 +45,35 @@ async function sendMessage() {
 
     const data = await res.json();
 
-    chatBox.innerHTML += `<div class="bot">Bot: ${data.response}</div>`;
+    chatBox.innerHTML += `<div class="chat bot">
+        <div class="bubble">
+        Bot: ${data.response}
+        </div>
+        </div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+window.onload = async () => {
+    const res = await fetch("/chat_history");
+    const data = await res.json();
+    
+    const chatBox = document.getElementById("chat-box");
+    data.history.forEach(item => {
+        if (item.role === "user") {
+            chatBox.innerHTML += `<div class="chat user">
+                <div class="bubble">
+                You: ${item.content}
+                </div>
+                </div>`;
+        } else if (item.role === "assistant") {
+            chatBox.innerHTML += `<div class="chat bot">
+                <div class="bubble">
+                Bot: ${item.content}
+                </div>
+                </div>`;
+        }
+    });
+
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 </script>

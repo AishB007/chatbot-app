@@ -16,13 +16,11 @@ def get_response(username, prompt):
 
     messages = get_chat_history(username)
     messages.append({"role": "user", "content": prompt})
-    print("messages", messages)
-    #update_chat_history(username, messages)
+    
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=messages
     )
-    print("response", response)
     messages.append({"role": "assistant", "content": response.choices[0].message.content})
     update_chat_history(username, messages)
 

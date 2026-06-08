@@ -1,0 +1,20 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="/static/css/profile.css">
+    <link rel="stylesheet" href="/static/css/navbar.css">
+</head>
+<body>
+{% include "navbar.html" %}
+<div class="main">
+<div class="container"> 
+    <div class="profile-pic">
+    <img src="/static/images/user.png" alt="Profile Picture" class="profile-pic">
+    </div>
+    <div class="info">
+    <span>Username:</span>
+    <strong>{{ request.cookies.get("user") }}</strong>
+    </div>
+</div>
+</div>
+</body>

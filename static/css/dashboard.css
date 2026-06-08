@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: Arial;
-    background-color:  #bdc58f;
+    background-color: lightskyblue;
     color: black;
     justify-content: center;
 }
@@ -82,12 +82,32 @@ button {
     padding: 10px;
 }
 
-.user {
-    text-align: left;
-    margin: 5px;
+.chat {
+  margin: 5px 0;
 }
 
-.bot {
-    text-align: right;
-    margin: 5px;
+.chat.user {
+  text-align: right;
+}
+
+.chat.bot {
+  text-align: left;
+}
+
+.bubble {
+  display: inline-block;
+  max-width: 65%;
+  padding: 10px 14px;
+  border-radius: 15px;
+  width: fit-content;
+}
+
+.chat.user .bubble {
+  background-color: #25d366;
+  color: black;
+}
+
+.chat.bot .bubble {
+  background-color: #2a2a2a;
+  color: white;
 }

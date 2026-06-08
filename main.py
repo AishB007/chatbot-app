@@ -1,21 +1,22 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from llm import get_response
 from auth import authenticate_user, register_user
+from db import get_chat_history
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 👉 Home redirect
+#  Home redirect
 @app.get("/", response_class=HTMLResponse)
 def home():
     return RedirectResponse(url="/login")
 
-# 👉 Register Page
+#  Register Page
 @app.get("/register", response_class=HTMLResponse)
 def register_page(request: Request):
     return templates.TemplateResponse(request=request, name="register.html")
@@ -25,26 +26,33 @@ def register_user_endpoint(username: str = Form(...), password: str = Form(...))
     is_registered, message = register_user(username, password)
 
     if not is_registered:
-        return {"error": message}
+        return JSONResponse(status_code=400, content={"error": f"{message}"})
 
     response = RedirectResponse(url="/login", status_code=302)
     return response
 
 
-# 👉 Login Page
+#  Login Page
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
 
+# Profile Page
+@app.get("/profile", response_class=HTMLResponse)
+def profile_page(request: Request):
+    username = request.cookies.get("user")
+    if not username:
+        return RedirectResponse(url="/login")
+    return templates.TemplateResponse(request=request, name="profile.html")
 
 @app.post("/login")
 def login_user(username: str = Form(...), password: str = Form(...)):
     is_authenticated, message = authenticate_user(username, password)
 
     if not is_authenticated:
-        return {"error": "Invalid credentials"}
+        return JSONResponse(status_code=400, content={"error": f"{message}"})
 
-    response = RedirectResponse(url="/dashboard", status_code=302)
+    response = RedirectResponse(url="/dashboard", status_code=303)
     response.set_cookie(key="user", value=username)
     return response
 
@@ -78,3 +86,10 @@ def chat(request: Request,body:ChatRequest):
         "user": user_message,
         "response": response
     }
+
+@app.get("/chat_history")
+def chat_history(request: Request):
+    username = request.cookies.get("user")
+    history = get_chat_history(username)
+    
+    return {"history": history}
