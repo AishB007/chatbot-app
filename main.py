@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, Form
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -7,6 +8,7 @@ from auth import authenticate_user, register_user
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # 👉 Home redirect
 @app.get("/", response_class=HTMLResponse)
@@ -46,9 +48,19 @@ def login_user(username: str = Form(...), password: str = Form(...)):
     response.set_cookie(key="user", value=username)
     return response
 
+@app.get("/logout")
+def logout_user():
+    response = RedirectResponse(url="/login", status_code=302)
+    response.delete_cookie(key="user")
+    return response
+
 @app.get("/dashboard", response_class=HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse(request=request, name="index.html")
+    token = request.cookies.get("user")
+    if not token:
+        return RedirectResponse(url="/login")
+    
+    return templates.TemplateResponse(request=request, name="dashboard.html")
 
 # Request body schema
 class ChatRequest(BaseModel):
@@ -56,10 +68,11 @@ class ChatRequest(BaseModel):
 
 # API endpoint
 @app.post("/chat")
-def chat(request: ChatRequest):
-    user_message = request.message
-
-    response = get_response(user_message)
+def chat(request: Request,body:ChatRequest):
+    user_message = body.message
+    username = request.cookies.get("user")
+    
+    response = get_response(username,user_message)
 
     return {
         "user": user_message,

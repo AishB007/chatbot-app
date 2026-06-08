@@ -1,13 +1,26 @@
-<form method="POST" action="/register">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="/static/css/register.css">
+</head>
+<body>
+<div class="container"> 
   <h2>Register</h2>
   <label for="username">Username:</label>
   <input name="username" id="username" required />
   <label for="password">Password:</label>
   <input name="password" type="password" id="password" required />
+  <div id="button-container">
   <button type="submit" onclick="registerUser()">Register</button>
-</form>
+  </div>
 
-<a href="/login">Login</a>
+  <div id="button-container">
+  <a href="/login">Already have an account? Login</a>
+  </div>
+</div>
+
+
+</body>
 
 <script>
 async function registerUser() {

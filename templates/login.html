@@ -1,10 +1,44 @@
-<form method="POST" action="/login">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body>
+<div class="container">
   <h2>Login</h2>
   <label for="username">Username:</label>
-  <input name="username" required />
+  <input name="username" id="username" required />
   <label for="password">Password:</label>
-  <input name="password" type="password" required />
-  <button type="submit">Login</button>
-</form>
+  <input name="password" type="password" id="password" required />
+  <div id="button-container">
+  <button type="submit" onclick="loginUser()">Login</button>
+  </div>
 
-<a href="/register">Register</a>
+  <div id="button-container">
+     <a href="/register">Don't have an account? Register</a>
+  </div>
+</div>
+
+</body>
+
+<script>
+async function loginUser() { 
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  const res = await fetch("/login", {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+  }); 
+  if (res.ok) {
+      alert("Login successful!");
+      window.location.href = "/dashboard"; 
+  } else {
+      const data = await res.json();
+      alert("Error: " + data.error);
+  }
+}
+</script>
