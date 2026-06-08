@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from llm import get_response
 from auth import authenticate_user, register_user
-from db import get_chat_history
+from db import get_chat_history,update_login_status
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -57,8 +57,11 @@ def login_user(username: str = Form(...), password: str = Form(...)):
     return response
 
 @app.get("/logout")
-def logout_user():
+def logout_user(request: Request):
+    username=request.cookies.get("user")
     response = RedirectResponse(url="/login", status_code=302)
+    if username:
+        update_login_status(username, status=False)
     response.delete_cookie(key="user")
     return response
 
